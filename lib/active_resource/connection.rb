@@ -20,7 +20,7 @@ module ActiveResource
       :head => 'Accept'
     }
 
-    attr_reader :site, :user, :password, :auth_type, :timeout, :open_timeout, :read_timeout, :proxy, :ssl_options
+    attr_reader :site, :default_path, :user, :password, :auth_type, :timeout, :open_timeout, :read_timeout, :proxy, :ssl_options
     attr_accessor :format, :logger
 
     class << self
@@ -45,6 +45,11 @@ module ActiveResource
       @ssl_options ||= {} if @site.is_a?(URI::HTTPS)
       @user = URI.parser.unescape(@site.user) if @site.user
       @password = URI.parser.unescape(@site.password) if @site.password
+    end
+
+    # Set default path for remote service.
+    def default_path=(default_path)
+      @default_path = default_path
     end
 
     # Set the proxy for remote service.
@@ -128,7 +133,7 @@ module ActiveResource
       def request(method, path, *arguments)
         result = ActiveSupport::Notifications.instrument("request.active_resource") do |payload|
           payload[:method]      = method
-          payload[:request_uri] = "#{site.scheme}://#{site.host}:#{site.port}#{path}"
+          payload[:request_uri] = "#{site.scheme}://#{site.host}:#{site.port}#{default_path}#{path}"
           payload[:result]      = http.send(method, path, *arguments)
         end
         handle_response(result)

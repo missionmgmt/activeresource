@@ -54,6 +54,14 @@ class BaseTest < ActiveSupport::TestCase
     assert_nil actor.site
   end
 
+  def test_default_path_variable_can_be_reset
+    actor = Class.new(ActiveResource::Base)
+    assert_nil actor.default_path
+    actor.default_path = '/test/path'
+    actor.default_path = nil
+    assert_nil actor.default_path
+  end
+
   def test_proxy_accessor_accepts_uri_or_string_argument
     proxy = URI.parse('http://localhost')
 

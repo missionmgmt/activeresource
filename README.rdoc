@@ -53,7 +53,7 @@ life cycle methods that operate against a persistent store.
 As you can see, the methods are quite similar to Active Record's methods for dealing with database
 records.  But rather than dealing directly with a database record, you're dealing with HTTP resources (which may or may not be database records).
 
-Connection settings (`site`, `headers`, `user`, `password`, `proxy`) and the connections themselves are store in
+Connection settings (`site`, `headers`, `user`, `password`, `proxy`, `default_path`) and the connections themselves are store in
 thread-local variables to make them thread-safe, so you can also set these dynamically, even in a multi-threaded environment, for instance:
 
     ActiveResource::Base.site = api_site_for(request)
