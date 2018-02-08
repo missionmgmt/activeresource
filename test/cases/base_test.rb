@@ -84,6 +84,12 @@ class BaseTest < ActiveSupport::TestCase
     assert_nil actor.site
   end
 
+  def test_should_accept_setting_default_path
+    Forum.default_path = '/test/path'
+    assert_equal('/test/path', Forum.default_path)
+    assert_equal('/test/path', Forum.connection.default_path)
+  end
+  
   def test_should_accept_setting_user
     Forum.user = 'david'
     assert_equal('david', Forum.user)
