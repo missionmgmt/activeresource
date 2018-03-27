@@ -127,6 +127,10 @@ module ActiveResource
       with_auth { request(:head, path, build_request_headers(headers, :head, self.site.merge(path))) }
     end
 
+    def request_path 
+      "#{site.scheme}://#{site.host}:#{site.port}#{default_path}#{path}"
+    end 
+
     private
       # Makes a request to the remote service.
       def request(method, path, *arguments)
