@@ -113,18 +113,14 @@ module ActiveResource
       with_auth { request(:head, path, build_request_headers(headers, :head, site.merge(path))) }
     end
 
-    def full_path
-      "#{default_path}#{path}"
-    end
-
     private
 
     # Makes a request to the remote service.
-    def request(method, _path, *arguments)
+    def request(method, path, *arguments)
       result = ActiveSupport::Notifications.instrument('request.active_resource') do |payload|
         payload[:method]      = method
-        payload[:request_uri] = "#{site.scheme}://#{site.host}:#{site.port}#{full_path}"
-        payload[:result]      = http.send(method, full_path, *arguments)
+        payload[:request_uri] = "#{site.scheme}://#{site.host}:#{site.port}#{default_path}#{path}"
+        payload[:result]      = http.send(method, "#{default_path}#{path}", *arguments)
       end
       handle_response(result)
     rescue Timeout::Error => e
