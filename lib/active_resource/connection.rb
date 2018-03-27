@@ -127,7 +127,7 @@ module ActiveResource
       with_auth { request(:head, path, build_request_headers(headers, :head, self.site.merge(path))) }
     end
 
-    def request_path 
+    def request_path(path)
       "#{site.scheme}://#{site.host}:#{site.port}#{default_path}#{path}"
     end 
 
