@@ -308,7 +308,7 @@ module ActiveResource
 
     class << self
       include ThreadsafeAttributes
-      threadsafe_attribute :_headers, :_connection, :_user, :_password, :_site, :_proxy
+      threadsafe_attribute :_headers, :_connection, :_user, :_password, :_site, :_proxy, :_default_path
 
       # Creates a schema for this resource - setting the attributes that are
       # known prior to fetching an instance from the remote system.
@@ -464,6 +464,21 @@ module ActiveResource
           self._user = URI.parser.unescape(_site.user) if _site.user
           self._password = URI.parser.unescape(_site.password) if _site.password
         end
+      end
+
+      # Gets the default path of the REST resources to map for this class.
+      def default_path
+        if _default_path_defined?
+          _default_path
+        elsif superclass != Object && superclass.default_path
+          superclass.default_path.dup.freeze
+        end
+      end
+
+      # Sets the default path of the REST resources to map for this class to the value in the +default_path+ argument.
+      def default_path=(default_path)
+        self._connection = nil
+        self._default_path = default_path
       end
 
       # Gets the \proxy variable if a proxy is required
@@ -633,6 +648,7 @@ module ActiveResource
       def connection(refresh = false)
         if _connection_defined? || superclass == Object
           self._connection = Connection.new(site, format) if refresh || _connection.nil?
+          _connection.default_path = default_path if default_path
           _connection.proxy = proxy if proxy
           _connection.user = user if user
           _connection.password = password if password
