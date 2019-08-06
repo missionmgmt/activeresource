@@ -5,6 +5,7 @@ require 'net/https'
 require 'date'
 require 'time'
 require 'uri'
+require 'securerandom'
 
 module ActiveResource
   # Class to handle connections to remote web services.
@@ -260,7 +261,7 @@ module ActiveResource
       end
 
       def client_nonce
-        BCrypt::Password.create("%x" % (Time.now.to_i + rand(65535)))
+        BCrypt::Password.create("%x" % (Time.now.to_i + SecureRandom.random_number(65535)))
       end
 
       def extract_params_from_response
