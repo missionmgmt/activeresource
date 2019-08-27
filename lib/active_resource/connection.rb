@@ -5,6 +5,7 @@ require 'net/https'
 require 'date'
 require 'time'
 require 'uri'
+require 'securerandom'
 
 module ActiveResource
   # Class to handle connections to remote web services.
@@ -251,24 +252,24 @@ module ActiveResource
         request_uri = uri.path
         request_uri << "?#{uri.query}" if uri.query
 
-        ha1 = Digest::MD5.hexdigest("#{@user}:#{params['realm']}:#{@password}")
-        ha2 = Digest::MD5.hexdigest("#{http_method.to_s.upcase}:#{request_uri}")
+        ha1 = BCrypt::Password.create("#{@user}:#{params['realm']}:#{@password}")
+        ha2 = BCrypt::Password.create("#{http_method.to_s.upcase}:#{request_uri}")
 
         params.merge!('cnonce' => client_nonce)
-        request_digest = Digest::MD5.hexdigest([ha1, params['nonce'], "0", params['cnonce'], params['qop'], ha2].join(":"))
+        request_digest = BCrypt::Password.create([ha1, params['nonce'], "0", params['cnonce'], params['qop'], ha2].join(":"))
         "Digest #{auth_attributes_for(uri, request_digest, params)}"
       end
 
       def client_nonce
-        Digest::MD5.hexdigest("%x" % (Time.now.to_i + rand(65535)))
+        BCrypt::Password.create("%x" % (Time.now.to_i + SecureRandom.random_number(65535)))
       end
 
       def extract_params_from_response
         params = {}
-        if response_auth_header =~ /^(\w+) (.*)/
-          $2.gsub(/(\w+)="(.*?)"/) { params[$1] = $2 }
-        end
-        params
+
+        $2.gsub(/(\w+)="(.*?)"/) { params[$1] = $2 } if response_auth_header =~ /^(\w+) (.*)/
+
+        return params
       end
 
       def auth_attributes_for(uri, request_digest, params)
